@@ -68,9 +68,9 @@ export async function postFileChange(options: PostFileChangeOptions): Promise<vo
     try {
       execSync(resolved, { stdio: "pipe", encoding: "utf-8" });
     } catch (err) {
-      const message = err instanceof Error && "stderr" in err
-        ? (err as { stderr: string }).stderr
-        : String(err);
+      const execErr = err as { stdout?: string; stderr?: string };
+      const message = [execErr.stdout, execErr.stderr].filter(Boolean).join("\n").trim()
+        || String(err);
       errors.push(`[${name}] ${message}`);
     }
   }
