@@ -25,7 +25,7 @@ export async function toolBlock(): Promise<void> {
 
   for (const block of config.toolBlocks) {
     const escaped = block.tool.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pattern = new RegExp(`(^|&&|\\|\\||\\||;)\\s*${escaped}\\s`);
+    const pattern = new RegExp(`(^|&&|\\|\\||\\||;)\\s*${escaped}(\\s|$)`);
     if (pattern.test(command)) {
       console.error(`BLOCKED: ${block.message}`);
       process.exit(2);

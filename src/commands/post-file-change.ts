@@ -64,7 +64,8 @@ export async function postFileChange(options: PostFileChangeOptions): Promise<vo
   const errors: string[] = [];
 
   for (const [name, command] of Object.entries(checks)) {
-    const resolved = command.replaceAll("{{filePath}}", filePath);
+    const quoted = `'${filePath.replace(/'/g, "'\\''")}'`;
+    const resolved = command.replaceAll("{{filePath}}", quoted);
     try {
       execSync(resolved, { stdio: "pipe", encoding: "utf-8" });
     } catch (err) {
