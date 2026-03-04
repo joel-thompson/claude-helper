@@ -8,9 +8,7 @@ const DEFAULT_CONFIG = {
     typeCheck: "pnpm typecheck",
   },
   extensions: ["ts", "tsx", "js", "jsx"],
-  toolBlocks: [
-    { tool: "git push", message: "do not push without explicit permission" },
-  ],
+  toolBlocks: [{ tool: "git push", message: "do not push" }],
 };
 
 export function init(): void {
