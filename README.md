@@ -9,6 +9,9 @@ git clone <repo-url> && cd claude-helper
 pnpm install
 pnpm build
 pnpm link --global
+
+// or build and link in one command
+pnpm link-local
 ```
 
 ## Config
