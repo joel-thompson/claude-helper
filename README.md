@@ -71,16 +71,7 @@ Scaffold a `.ch.json` config file with sensible defaults.
 Run configured checks after a file change.
 
 ```bash
-# Via Claude hook (reads file_path from stdin JSON)
 echo '{"tool_input":{"file_path":"src/app.ts"}}' | ch post-file-change
-
-# Manual mode
-ch post-file-change --file src/app.ts
-
-# Selective checks
-ch post-file-change --file src/app.ts --lint
-ch post-file-change --file src/app.ts --format
-ch post-file-change --file src/app.ts --type-check
 ```
 
 ### `ch tool-block`

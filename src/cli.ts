@@ -22,12 +22,8 @@ program
 program
   .command("post-file-change")
   .description("Run configured checks after a file change")
-  .option("--file <path>", "File path to check (alternative to stdin)")
-  .option("--lint", "Run only the lint check")
-  .option("--format", "Run only the format check")
-  .option("--type-check", "Run only the typecheck")
-  .action(async (options) => {
-    await postFileChange(options);
+  .action(async () => {
+    await postFileChange();
   });
 
 program
