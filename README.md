@@ -10,7 +10,7 @@ pnpm install
 pnpm build
 pnpm link --global
 
-// or build and link in one command
+# or build and link in one command
 pnpm link-local
 ```
 
