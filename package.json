@@ -1,0 +1,40 @@
+{
+  "name": "claude-helper",
+  "version": "1.0.0",
+  "description": "A reusable CLI for Claude Code hooks — lint, format, typecheck, and tool blocking via per-project config.",
+  "type": "module",
+  "bin": {
+    "ch": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "link-local": "pnpm build && pnpm link --global",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "keywords": [
+    "claude",
+    "cli",
+    "hooks",
+    "lint",
+    "format",
+    "typecheck"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^14.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
