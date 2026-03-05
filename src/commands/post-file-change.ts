@@ -33,7 +33,11 @@ export async function postFileChange(): Promise<void> {
 
   const errors: string[] = [];
 
-  for (const [name, command] of Object.entries(config.checks)) {
+  const entries = Object.entries(config.checks);
+  const formatters = entries.filter(([key]) => key === "format");
+  const others = entries.filter(([key]) => key !== "format");
+
+  for (const [name, command] of [...formatters, ...others]) {
     const quoted = `'${filePath.replace(/'/g, "'\\''")}'`;
     const resolved = command.replaceAll("{{filePath}}", quoted);
     try {
