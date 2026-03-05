@@ -20,7 +20,7 @@ export function init(): void {
     return;
   }
 
-  mkdirSync(join(claudeDir, "ch-logs"), { recursive: true });
+  mkdirSync(claudeDir, { recursive: true });
   writeFileSync(configPath, JSON.stringify(DEFAULT_CONFIG, null, 2) + "\n");
   console.log("Created .claude/ch.local.json with default config.");
 }

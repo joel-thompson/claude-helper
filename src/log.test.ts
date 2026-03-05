@@ -9,7 +9,7 @@ import {
 import { join } from "node:path";
 import {
   appendLog,
-  getCurrentLogPath,
+  getLogFilePath,
   getLogsDir,
   formatTimestamp,
 } from "./log.js";
@@ -32,18 +32,13 @@ describe("getLogsDir", () => {
   });
 });
 
-describe("getCurrentLogPath", () => {
+describe("getLogFilePath", () => {
   beforeEach(setup);
   afterEach(() => rmSync(TEST_DIR, { recursive: true, force: true }));
 
-  it("returns null when no current file exists", () => {
-    expect(getCurrentLogPath(TEST_DIR)).toBeNull();
-  });
-
-  it("returns the path written in current file", () => {
-    const logsDir = join(TEST_DIR, ".claude", "ch-logs");
-    writeFileSync(join(logsDir, "current"), "/some/log.log");
-    expect(getCurrentLogPath(TEST_DIR)).toBe("/some/log.log");
+  it("returns <logsDir>/<sessionId>.log", () => {
+    const path = getLogFilePath("abc-123", TEST_DIR);
+    expect(path).toBe(join(TEST_DIR, ".claude", "ch-logs", "abc-123.log"));
   });
 });
 
@@ -51,21 +46,20 @@ describe("appendLog", () => {
   beforeEach(setup);
   afterEach(() => rmSync(TEST_DIR, { recursive: true, force: true }));
 
-  it("appends a line to the current log file", () => {
-    const logsDir = join(TEST_DIR, ".claude", "ch-logs");
-    const logFile = join(logsDir, "test.log");
+  it("appends a line to the session log file", () => {
+    const sessionId = "test-session";
+    const logFile = getLogFilePath(sessionId, TEST_DIR);
     writeFileSync(logFile, "header\n");
-    writeFileSync(join(logsDir, "current"), logFile);
 
-    appendLog("first line", TEST_DIR);
-    appendLog("second line", TEST_DIR);
+    appendLog("first line", sessionId, TEST_DIR);
+    appendLog("second line", sessionId, TEST_DIR);
 
     const content = readFileSync(logFile, "utf-8");
     expect(content).toBe("header\nfirst line\nsecond line\n");
   });
 
-  it("silently does nothing when no current session", () => {
-    expect(() => appendLog("line", TEST_DIR)).not.toThrow();
+  it("silently does nothing when no sessionId", () => {
+    expect(() => appendLog("line", "", TEST_DIR)).not.toThrow();
   });
 });
 

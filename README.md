@@ -74,7 +74,7 @@ Add to your project's `.claude/settings.local.json`:
 
 ### `ch init`
 
-Scaffold `.claude/ch.local.json` with sensible defaults. Also creates the `.claude/ch-logs/` directory for session logs.
+Scaffold `.claude/ch.local.json` with sensible defaults.
 
 ### `ch post-file-change`
 
@@ -98,7 +98,7 @@ echo '{"tool_input":{"command":"git push --force"}}' | ch tool-block
 
 ### `ch log-session-start`
 
-Start a new session log. Intended as a `SessionStart` hook. Creates a timestamped log file in `.claude/ch-logs/` and writes its path to `.claude/ch-logs/current`.
+Start a new session log. Intended as a `SessionStart` hook. Reads `session_id` from stdin and creates `.claude/ch-logs/<session_id>.log`. The log directory is auto-created on first use.
 
 ### `ch log-action`
 

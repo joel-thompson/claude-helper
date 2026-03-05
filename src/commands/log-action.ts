@@ -27,11 +27,12 @@ export async function logAction(): Promise<void> {
     const parsed = JSON.parse(stdinData);
     const toolName = parsed?.tool_name;
     const toolInput = parsed?.tool_input;
-    if (!toolName || !toolInput) return;
+    const sessionId = parsed?.session_id;
+    if (!toolName || !toolInput || !sessionId) return;
 
     const line = formatAction(toolName, toolInput);
     if (line) {
-      appendLog(line);
+      appendLog(line, sessionId);
     }
   } catch {
     // Silent on errors

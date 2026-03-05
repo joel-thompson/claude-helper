@@ -38,8 +38,8 @@ program
 program
   .command("log-session-start")
   .description("Start a new session log (SessionStart hook)")
-  .action(() => {
-    logSessionStart();
+  .action(async () => {
+    await logSessionStart();
   });
 
 program

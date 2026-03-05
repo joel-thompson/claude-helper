@@ -33,11 +33,11 @@ describe("init", () => {
     expect(config.toolBlocks).toBeDefined();
   });
 
-  it("creates .claude/ch-logs/ directory", async () => {
+  it("does not pre-create ch-logs directory", async () => {
     const { init } = await import("./init.js");
     init();
 
-    expect(existsSync(join(TEST_DIR, ".claude", "ch-logs"))).toBe(true);
+    expect(existsSync(join(TEST_DIR, ".claude", "ch-logs"))).toBe(false);
   });
 
   it("skips if config already exists", async () => {

@@ -19,21 +19,18 @@ vi.mock("../log.js", async (importOriginal) => {
   return {
     ...orig,
     formatTimestamp: () => "14:03",
-    getCurrentLogPath: () => {
-      const currentFile = join(TEST_DIR, ".claude", "ch-logs", "current");
-      try {
-        return readFileSync(currentFile, "utf-8").trim() || null;
-      } catch {
-        return null;
-      }
+    getLogFilePath: (sessionId: string) => {
+      return join(TEST_DIR, ".claude", "ch-logs", `${sessionId}.log`);
     },
-    appendLog: (line: string) => {
-      const currentFile = join(TEST_DIR, ".claude", "ch-logs", "current");
+    appendLog: (line: string, sessionId: string) => {
       try {
-        const logPath = readFileSync(currentFile, "utf-8").trim();
-        if (logPath) {
-          appendFileSync(logPath, line + "\n");
-        }
+        const logPath = join(
+          TEST_DIR,
+          ".claude",
+          "ch-logs",
+          `${sessionId}.log`,
+        );
+        appendFileSync(logPath, line + "\n");
       } catch {
         // silent
       }
@@ -46,12 +43,11 @@ import { logAction } from "./log-action.js";
 
 const mockReadStdin = vi.mocked(readStdin);
 
-function setupLogFile(): string {
+function setupLogFile(sessionId: string): string {
   const logsDir = join(TEST_DIR, ".claude", "ch-logs");
   mkdirSync(logsDir, { recursive: true });
-  const logFile = join(logsDir, "test.log");
+  const logFile = join(logsDir, `${sessionId}.log`);
   writeFileSync(logFile, "");
-  writeFileSync(join(logsDir, "current"), logFile);
   return logFile;
 }
 
@@ -63,9 +59,10 @@ describe("logAction", () => {
   afterEach(() => rmSync(TEST_DIR, { recursive: true, force: true }));
 
   it("formats Edit action correctly", async () => {
-    const logFile = setupLogFile();
+    const logFile = setupLogFile("sess-1");
     mockReadStdin.mockResolvedValue(
       JSON.stringify({
+        session_id: "sess-1",
         tool_name: "Edit",
         tool_input: { file_path: "src/app.ts" },
       }),
@@ -78,9 +75,10 @@ describe("logAction", () => {
   });
 
   it("formats Write action correctly", async () => {
-    const logFile = setupLogFile();
+    const logFile = setupLogFile("sess-1");
     mockReadStdin.mockResolvedValue(
       JSON.stringify({
+        session_id: "sess-1",
         tool_name: "Write",
         tool_input: { file_path: "src/new.ts" },
       }),
@@ -93,9 +91,10 @@ describe("logAction", () => {
   });
 
   it("formats Bash action correctly", async () => {
-    const logFile = setupLogFile();
+    const logFile = setupLogFile("sess-1");
     mockReadStdin.mockResolvedValue(
       JSON.stringify({
+        session_id: "sess-1",
         tool_name: "Bash",
         tool_input: { command: "npm test" },
       }),
@@ -108,9 +107,10 @@ describe("logAction", () => {
   });
 
   it("skips unknown tools silently", async () => {
-    const logFile = setupLogFile();
+    const logFile = setupLogFile("sess-1");
     mockReadStdin.mockResolvedValue(
       JSON.stringify({
+        session_id: "sess-1",
         tool_name: "Read",
         tool_input: { file_path: "src/app.ts" },
       }),
@@ -122,8 +122,7 @@ describe("logAction", () => {
     expect(content).toBe("");
   });
 
-  it("handles no session gracefully", async () => {
-    mkdirSync(join(TEST_DIR, ".claude", "ch-logs"), { recursive: true });
+  it("handles missing session_id gracefully", async () => {
     mockReadStdin.mockResolvedValue(
       JSON.stringify({
         tool_name: "Edit",
