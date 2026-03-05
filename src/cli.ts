@@ -4,6 +4,8 @@ import { Command } from "commander";
 import { postFileChange } from "./commands/post-file-change.js";
 import { toolBlock } from "./commands/tool-block.js";
 import { init } from "./commands/init.js";
+import { logSessionStart } from "./commands/log-session-start.js";
+import { logAction } from "./commands/log-action.js";
 
 const program = new Command();
 
@@ -14,7 +16,7 @@ program
 
 program
   .command("init")
-  .description("Scaffold a .ch.json config file in the current directory")
+  .description("Scaffold a .claude/ch.local.json config file")
   .action(() => {
     init();
   });
@@ -31,6 +33,20 @@ program
   .description("Check if a tool command should be blocked (PreToolUse hook)")
   .action(async () => {
     await toolBlock();
+  });
+
+program
+  .command("log-session-start")
+  .description("Start a new session log (SessionStart hook)")
+  .action(() => {
+    logSessionStart();
+  });
+
+program
+  .command("log-action")
+  .description("Log a tool action to the session log (PostToolUse hook)")
+  .action(async () => {
+    await logAction();
   });
 
 program.parse();

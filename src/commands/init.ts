@@ -1,4 +1,4 @@
-import { writeFileSync, existsSync } from "node:fs";
+import { writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const DEFAULT_CONFIG = {
@@ -12,13 +12,15 @@ const DEFAULT_CONFIG = {
 };
 
 export function init(): void {
-  const configPath = join(process.cwd(), ".ch.json");
+  const claudeDir = join(process.cwd(), ".claude");
+  const configPath = join(claudeDir, "ch.local.json");
 
   if (existsSync(configPath)) {
-    console.warn(".ch.json already exists. Skipping.");
+    console.warn(".claude/ch.local.json already exists. Skipping.");
     return;
   }
 
+  mkdirSync(join(claudeDir, "ch-logs"), { recursive: true });
   writeFileSync(configPath, JSON.stringify(DEFAULT_CONFIG, null, 2) + "\n");
-  console.log("Created .ch.json with default config.");
+  console.log("Created .claude/ch.local.json with default config.");
 }

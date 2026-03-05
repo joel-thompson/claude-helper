@@ -18,10 +18,24 @@ const DEFAULT_CONFIG: ChConfig = {
   toolBlocks: [],
 };
 
+export function getClaudeDir(startDir: string = process.cwd()): string | null {
+  let dir = startDir;
+  while (true) {
+    const claudeDir = join(dir, ".claude");
+    if (existsSync(claudeDir)) {
+      return claudeDir;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
 function findConfigFile(startDir: string): string | null {
   let dir = startDir;
   while (true) {
-    const configPath = join(dir, ".ch.json");
+    const configPath = join(dir, ".claude", "ch.local.json");
     if (existsSync(configPath)) {
       return configPath;
     }
