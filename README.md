@@ -2,6 +2,16 @@
 
 A reusable CLI for Claude Code hooks. Configure lint, format, typecheck, tool blocking, and session activity logging per-project via a `.claude/ch.local.json` config file.
 
+## How It Works
+
+Claude Code triggers hooks at specific lifecycle points (session start, before/after tool use). Each hook pipes a JSON payload to `ch` via stdin. `ch` loads the nearest `.claude/ch.local.json` config, processes the payload, and communicates back via exit codes:
+
+- **Exit 0** — success (check passed, command allowed)
+- **Exit 1** — check failure (`post-file-change` lint/format/typecheck errors)
+- **Exit 2** — blocked (`tool-block` rejected the command)
+
+If no `.claude/ch.local.json` is found, `ch` falls back to defaults (no checks, no tool blocks, extensions: `ts`, `tsx`, `js`, `jsx`).
+
 ## Setup
 
 ```bash
@@ -27,7 +37,7 @@ Run `ch init` to scaffold `.claude/ch.local.json` with sensible defaults, or cre
   },
   "extensions": ["ts", "tsx", "js", "jsx"],
   "toolBlocks": [
-    { "tool": "git push", "message": "do not push without explicit permission" },
+    { "tool": "git push", "message": "do not push" },
     { "tool": "npm", "message": "do not use npm, use pnpm" }
   ]
 }
@@ -35,7 +45,8 @@ Run `ch init` to scaffold `.claude/ch.local.json` with sensible defaults, or cre
 
 - `{{filePath}}` is replaced with the actual file path at runtime
 - `extensions` controls which file types trigger checks
-- `toolBlocks` defines commands to block in PreToolUse hooks
+- `toolBlocks` defines commands to block in PreToolUse hooks — matching is boundary-aware, so `"git push"` also catches `git push` inside chained commands like `pnpm build && git push`
+- Checks named `format` run before other checks (so formatting happens before linting)
 - Config is resolved by walking up from cwd, so monorepo sub-packages can have their own config
 
 ## Claude Code Integration
@@ -93,7 +104,7 @@ echo '{"tool_input":{"command":"npm install foo"}}' | ch tool-block
 # BLOCKED: do not use npm, use pnpm
 
 echo '{"tool_input":{"command":"git push --force"}}' | ch tool-block
-# BLOCKED: do not push without explicit permission
+# BLOCKED: do not push
 ```
 
 ### `ch log-session-start`

@@ -19,6 +19,6 @@ All source is in `src/`. Entry point is `src/cli.ts` (Commander-based).
 
 **Stdin** (`src/stdin.ts`): Reads piped JSON from Claude Code hooks (the `tool_input` payload).
 
-**Logging** (`src/log.ts`): Session activity logging utilities. Logs live in `.claude/ch-logs/`, one file per session. `current` file points to the active session log.
+**Logging** (`src/log.ts`): Session activity logging utilities. Logs live in `.claude/ch-logs/`, one file per session (`<session_id>.log`).
 
 **Commands** (`src/commands/`): File for each command.
