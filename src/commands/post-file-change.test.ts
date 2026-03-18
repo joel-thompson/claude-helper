@@ -26,6 +26,7 @@ function makeConfig(overrides: Partial<ChConfig> = {}): ChConfig {
   return {
     extensions: ["ts"],
     checks: {},
+    stopChecks: {},
     toolBlocks: [],
     ...overrides,
   };
