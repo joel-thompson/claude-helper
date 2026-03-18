@@ -20,6 +20,7 @@ export default [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      "require-await": "error",
       "no-console": "off",
       semi: ["error", "always"],
       quotes: ["error", "double", { avoidEscape: true }],

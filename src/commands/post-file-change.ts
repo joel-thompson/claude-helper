@@ -43,10 +43,18 @@ export async function postFileChange(): Promise<void> {
     try {
       execSync(resolved, { stdio: "pipe", encoding: "utf-8" });
     } catch (err) {
-      const execErr = err as { stdout?: string; stderr?: string };
+      const execErr = err as Error & {
+        stdout?: string;
+        stderr?: string;
+        status?: number;
+      };
+      const output = [execErr.stdout, execErr.stderr]
+        .filter(Boolean)
+        .join("\n")
+        .trim();
       const message =
-        [execErr.stdout, execErr.stderr].filter(Boolean).join("\n").trim() ||
-        String(err);
+        output ||
+        (execErr.status != null ? `exit code ${execErr.status}` : String(err));
       errors.push(`[${name}] ${message}`);
     }
   }

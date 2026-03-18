@@ -53,8 +53,8 @@ program
 program
   .command("stop")
   .description("Run project-wide checks (Stop hook)")
-  .action(async () => {
-    await stop();
+  .action(() => {
+    stop();
   });
 
 program.parse();

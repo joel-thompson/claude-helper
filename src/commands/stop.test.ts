@@ -35,30 +35,30 @@ describe("stop", () => {
     mockLoadConfig.mockReturnValue(makeConfig());
   });
 
-  it("does nothing when stopChecks is empty", async () => {
-    await stop();
+  it("does nothing when stopChecks is empty", () => {
+    stop();
 
     expect(mockExecSync).not.toHaveBeenCalled();
     expect(logSpy).not.toHaveBeenCalled();
   });
 
-  it("succeeds when all checks pass", async () => {
+  it("succeeds when all checks pass", () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({ stopChecks: { lint: "eslint .", typeCheck: "tsc" } }),
     );
 
-    await stop();
+    stop();
 
     expect(logSpy).not.toHaveBeenCalled();
     expect(mockExecSync).toHaveBeenCalledTimes(2);
   });
 
-  it("runs commands without filePath substitution", async () => {
+  it("runs commands without filePath substitution", () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({ stopChecks: { lint: "eslint ." } }),
     );
 
-    await stop();
+    stop();
 
     expect(mockExecSync).toHaveBeenCalledWith("eslint .", {
       stdio: "pipe",
@@ -66,23 +66,27 @@ describe("stop", () => {
     });
   });
 
-  it("outputs block decision JSON when a check fails", async () => {
+  it("outputs block decision JSON when a check fails", () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({ stopChecks: { lint: "eslint ." } }),
     );
     mockExecSync.mockImplementation(() => {
-      throw { stdout: "lint error", stderr: "details" };
+      throw Object.assign(new Error("cmd failed"), {
+        stdout: "lint error",
+        stderr: "details",
+      });
     });
 
-    await stop();
+    stop();
 
+    expect(logSpy).toHaveBeenCalledOnce();
     const output = JSON.parse(logSpy.mock.calls[0][0] as string);
     expect(output.decision).toBe("block");
     expect(output.reason).toContain("Checks failed:");
     expect(output.reason).toContain("[lint] lint error\ndetails");
   });
 
-  it("runs format checks before other checks", async () => {
+  it("runs format checks before other checks", () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({
         stopChecks: {
@@ -99,7 +103,7 @@ describe("stop", () => {
       return "";
     });
 
-    await stop();
+    stop();
 
     expect(callOrder[0]).toContain("prettier");
     expect(callOrder.slice(1)).toEqual(
@@ -107,7 +111,7 @@ describe("stop", () => {
     );
   });
 
-  it("runs checks in source order when no format key exists", async () => {
+  it("runs checks in source order when no format key exists", () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({
         stopChecks: {
@@ -123,42 +127,53 @@ describe("stop", () => {
       return "";
     });
 
-    await stop();
+    stop();
 
     expect(callOrder).toEqual(["eslint .", "tsc"]);
   });
 
-  it("reports only the failing check when multiple checks run", async () => {
+  it("reports only the failing check when multiple checks run", () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({ stopChecks: { lint: "eslint .", typeCheck: "tsc" } }),
     );
     mockExecSync
       .mockImplementationOnce(() => "ok")
       .mockImplementationOnce(() => {
-        throw { stdout: "type error", stderr: "" };
+        throw Object.assign(new Error("cmd failed"), {
+          stdout: "type error",
+          stderr: "",
+        });
       });
 
-    await stop();
+    stop();
 
+    expect(logSpy).toHaveBeenCalledOnce();
     const output = JSON.parse(logSpy.mock.calls[0][0] as string);
     expect(output.reason).toContain("[typeCheck] type error");
     expect(output.reason).not.toContain("[lint]");
   });
 
-  it("runs all checks and collects all errors before blocking", async () => {
+  it("runs all checks and collects all errors before blocking", () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({ stopChecks: { lint: "eslint .", typeCheck: "tsc" } }),
     );
     mockExecSync
       .mockImplementationOnce(() => {
-        throw { stdout: "lint fail", stderr: "" };
+        throw Object.assign(new Error("cmd failed"), {
+          stdout: "lint fail",
+          stderr: "",
+        });
       })
       .mockImplementationOnce(() => {
-        throw { stdout: "type fail", stderr: "" };
+        throw Object.assign(new Error("cmd failed"), {
+          stdout: "type fail",
+          stderr: "",
+        });
       });
 
-    await stop();
+    stop();
 
+    expect(logSpy).toHaveBeenCalledOnce();
     const output = JSON.parse(logSpy.mock.calls[0][0] as string);
     expect(output.decision).toBe("block");
     expect(output.reason).toContain("[lint] lint fail");
