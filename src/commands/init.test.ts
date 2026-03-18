@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-const TEST_DIR = join(import.meta.dirname, "../../.test-tmp-init");
+const TEST_DIR = join(import.meta.dirname, ".test-tmp-init");
 
 describe("init", () => {
   let originalCwd: string;

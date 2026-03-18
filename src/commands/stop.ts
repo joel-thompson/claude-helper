@@ -23,10 +23,7 @@ export async function stop(): Promise<void> {
   }
 
   if (errors.length > 0) {
-    console.error("Checks failed:\n");
-    for (const error of errors) {
-      console.error(error);
-    }
-    process.exit(1);
+    const reason = ["Checks failed:", "", ...errors].join("\n");
+    console.log(JSON.stringify({ decision: "block", reason }));
   }
 }

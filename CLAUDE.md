@@ -1,4 +1,5 @@
 # CLAUDE.md
+
 ## What This Is
 
 `claude-helper` (`ch`) is a reusable CLI for Claude Code hooks. It runs lint, format, typecheck, tool-blocking checks, and session activity logging per-project via a `.claude/ch.local.json` config file. The CLI binary is `ch`.

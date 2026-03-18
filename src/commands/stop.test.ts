@@ -27,15 +27,11 @@ function makeConfig(overrides: Partial<ChConfig> = {}): ChConfig {
 }
 
 describe("stop", () => {
-  let exitSpy: ReturnType<typeof vi.spyOn>;
-  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let logSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.resetAllMocks();
-    exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
-      throw new Error("process.exit");
-    });
-    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     mockLoadConfig.mockReturnValue(makeConfig());
   });
 
@@ -43,7 +39,7 @@ describe("stop", () => {
     await stop();
 
     expect(mockExecSync).not.toHaveBeenCalled();
-    expect(exitSpy).not.toHaveBeenCalled();
+    expect(logSpy).not.toHaveBeenCalled();
   });
 
   it("succeeds when all checks pass", async () => {
@@ -53,7 +49,7 @@ describe("stop", () => {
 
     await stop();
 
-    expect(exitSpy).not.toHaveBeenCalled();
+    expect(logSpy).not.toHaveBeenCalled();
     expect(mockExecSync).toHaveBeenCalledTimes(2);
   });
 
@@ -70,7 +66,7 @@ describe("stop", () => {
     });
   });
 
-  it("exits with error output when a check fails", async () => {
+  it("outputs block decision JSON when a check fails", async () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({ stopChecks: { lint: "eslint ." } }),
     );
@@ -78,10 +74,12 @@ describe("stop", () => {
       throw { stdout: "lint error", stderr: "details" };
     });
 
-    await expect(stop()).rejects.toThrow("process.exit");
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    expect(errorSpy).toHaveBeenCalledWith("Checks failed:\n");
-    expect(errorSpy).toHaveBeenCalledWith("[lint] lint error\ndetails");
+    await stop();
+
+    const output = JSON.parse(logSpy.mock.calls[0][0] as string);
+    expect(output.decision).toBe("block");
+    expect(output.reason).toContain("Checks failed:");
+    expect(output.reason).toContain("[lint] lint error\ndetails");
   });
 
   it("runs format checks before other checks", async () => {
@@ -140,13 +138,14 @@ describe("stop", () => {
         throw { stdout: "type error", stderr: "" };
       });
 
-    await expect(stop()).rejects.toThrow("process.exit");
-    expect(errorSpy).toHaveBeenCalledWith("[typeCheck] type error");
-    const errorCalls = errorSpy.mock.calls.flat();
-    expect(errorCalls).not.toContainEqual(expect.stringContaining("[lint]"));
+    await stop();
+
+    const output = JSON.parse(logSpy.mock.calls[0][0] as string);
+    expect(output.reason).toContain("[typeCheck] type error");
+    expect(output.reason).not.toContain("[lint]");
   });
 
-  it("runs all checks and collects all errors before exiting", async () => {
+  it("runs all checks and collects all errors before blocking", async () => {
     mockLoadConfig.mockReturnValue(
       makeConfig({ stopChecks: { lint: "eslint .", typeCheck: "tsc" } }),
     );
@@ -158,8 +157,11 @@ describe("stop", () => {
         throw { stdout: "type fail", stderr: "" };
       });
 
-    await expect(stop()).rejects.toThrow("process.exit");
-    expect(errorSpy).toHaveBeenCalledWith("[lint] lint fail");
-    expect(errorSpy).toHaveBeenCalledWith("[typeCheck] type fail");
+    await stop();
+
+    const output = JSON.parse(logSpy.mock.calls[0][0] as string);
+    expect(output.decision).toBe("block");
+    expect(output.reason).toContain("[lint] lint fail");
+    expect(output.reason).toContain("[typeCheck] type fail");
   });
 });

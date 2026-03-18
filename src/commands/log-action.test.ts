@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 
-const TEST_DIR = join(import.meta.dirname, "../../.test-tmp-action");
+const TEST_DIR = join(import.meta.dirname, ".test-tmp-action");
 
 vi.mock("../stdin.js", () => ({
   readStdin: vi.fn(),

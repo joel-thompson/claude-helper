@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { existsSync, readFileSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-const TEST_DIR = join(import.meta.dirname, "../../.test-tmp-session");
+const TEST_DIR = join(import.meta.dirname, ".test-tmp-session");
 
 vi.mock("../stdin.js", () => ({
   readStdin: vi.fn(),
