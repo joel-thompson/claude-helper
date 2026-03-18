@@ -1,15 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-const TEST_DIR = join(import.meta.dirname, "../../.test-tmp-init");
+const TEST_DIR = join(import.meta.dirname, ".test-tmp-init");
 
 describe("init", () => {
   let originalCwd: string;
 
   beforeEach(() => {
     rmSync(TEST_DIR, { recursive: true, force: true });
-    const { mkdirSync } = require("node:fs");
     mkdirSync(TEST_DIR, { recursive: true });
     originalCwd = process.cwd();
     process.chdir(TEST_DIR);

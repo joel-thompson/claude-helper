@@ -26,6 +26,7 @@ function makeConfig(overrides: Partial<ChConfig> = {}): ChConfig {
   return {
     extensions: ["ts"],
     checks: {},
+    stopChecks: {},
     toolBlocks: [],
     ...overrides,
   };
@@ -132,7 +133,10 @@ describe("postFileChange", () => {
         makeConfig({ checks: { lint: "eslint" } }),
       );
       mockExecSync.mockImplementation(() => {
-        throw { stdout: "lint error", stderr: "details" };
+        throw Object.assign(new Error("cmd failed"), {
+          stdout: "lint error",
+          stderr: "details",
+        });
       });
 
       await expect(postFileChange()).rejects.toThrow("process.exit");
@@ -219,7 +223,10 @@ describe("postFileChange", () => {
       mockExecSync
         .mockImplementationOnce(() => "ok")
         .mockImplementationOnce(() => {
-          throw { stdout: "type error", stderr: "" };
+          throw Object.assign(new Error("cmd failed"), {
+            stdout: "type error",
+            stderr: "",
+          });
         });
 
       await expect(postFileChange()).rejects.toThrow("process.exit");

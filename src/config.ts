@@ -8,12 +8,14 @@ interface ToolBlock {
 
 export interface ChConfig {
   checks: Record<string, string>;
+  stopChecks: Record<string, string>;
   extensions: string[];
   toolBlocks: ToolBlock[];
 }
 
 const DEFAULT_CONFIG: ChConfig = {
   checks: {},
+  stopChecks: {},
   extensions: ["ts", "tsx", "js", "jsx"],
   toolBlocks: [],
 };
@@ -55,6 +57,7 @@ export function loadConfig(cwd: string = process.cwd()): ChConfig {
   const raw = JSON.parse(readFileSync(configPath, "utf-8"));
   return {
     checks: raw.checks ?? DEFAULT_CONFIG.checks,
+    stopChecks: raw.stopChecks ?? DEFAULT_CONFIG.stopChecks,
     extensions: raw.extensions ?? DEFAULT_CONFIG.extensions,
     toolBlocks: raw.toolBlocks ?? DEFAULT_CONFIG.toolBlocks,
   };

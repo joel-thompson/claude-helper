@@ -7,6 +7,12 @@ const DEFAULT_CONFIG = {
     format: "pnpm exec prettier --write {{filePath}}",
     typeCheck: "pnpm typecheck",
   },
+  stopChecks: {
+    format: "pnpm exec prettier --write .",
+    lint: "pnpm exec eslint --max-warnings=0 .",
+    typeCheck: "pnpm typecheck",
+    test: "pnpm test:run",
+  },
   extensions: ["ts", "tsx", "js", "jsx"],
   toolBlocks: [{ tool: "git push", message: "do not push" }],
 };

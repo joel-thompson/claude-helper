@@ -14,7 +14,7 @@ import {
   formatTimestamp,
 } from "./log.js";
 
-const TEST_DIR = join(import.meta.dirname, "../.test-tmp-log");
+const TEST_DIR = join(import.meta.dirname, ".test-tmp-log");
 
 function setup() {
   rmSync(TEST_DIR, { recursive: true, force: true });

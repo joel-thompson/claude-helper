@@ -6,6 +6,7 @@ import { toolBlock } from "./commands/tool-block.js";
 import { init } from "./commands/init.js";
 import { logSessionStart } from "./commands/log-session-start.js";
 import { logAction } from "./commands/log-action.js";
+import { stop } from "./commands/stop.js";
 
 const program = new Command();
 
@@ -47,6 +48,13 @@ program
   .description("Log a tool action to the session log (PostToolUse hook)")
   .action(async () => {
     await logAction();
+  });
+
+program
+  .command("stop")
+  .description("Run project-wide checks (Stop hook)")
+  .action(() => {
+    stop();
   });
 
 program.parse();

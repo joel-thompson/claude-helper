@@ -35,6 +35,12 @@ Run `ch init` to scaffold `.claude/ch.local.json` with sensible defaults, or cre
     "format": "pnpm exec prettier --write {{filePath}}",
     "typeCheck": "pnpm typecheck"
   },
+  "stopChecks": {
+    "format": "pnpm exec prettier --write .",
+    "lint": "pnpm exec eslint --max-warnings=0 .",
+    "typeCheck": "pnpm typecheck",
+    "test": "pnpm test:run"
+  },
   "extensions": ["ts", "tsx", "js", "jsx"],
   "toolBlocks": [
     { "tool": "git push", "message": "do not push" },
@@ -45,6 +51,7 @@ Run `ch init` to scaffold `.claude/ch.local.json` with sensible defaults, or cre
 
 - `{{filePath}}` is replaced with the actual file path at runtime
 - `extensions` controls which file types trigger checks
+- `stopChecks` defines project-wide checks to run when Claude stops (no `{{filePath}}` substitution)
 - `toolBlocks` defines commands to block in PreToolUse hooks — matching is boundary-aware, so `"git push"` also catches `git push` inside chained commands like `pnpm build && git push`
 - Checks named `format` run before other checks (so formatting happens before linting)
 - Config is resolved by walking up from cwd, so monorepo sub-packages can have their own config
@@ -76,6 +83,11 @@ Add to your project's `.claude/settings.local.json`:
         "matcher": "Bash",
         "hooks": [{ "type": "command", "command": "ch tool-block" }]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [{ "type": "command", "command": "ch stop" }]
+      }
     ]
   }
 }
@@ -105,6 +117,14 @@ echo '{"tool_input":{"command":"npm install foo"}}' | ch tool-block
 
 echo '{"tool_input":{"command":"git push --force"}}' | ch tool-block
 # BLOCKED: do not push
+```
+
+### `ch stop`
+
+Run project-wide checks (format, lint, typecheck, test) configured in `stopChecks`. Intended as a `Stop` hook — runs when Claude finishes working.
+
+```bash
+ch stop
 ```
 
 ### `ch log-session-start`
